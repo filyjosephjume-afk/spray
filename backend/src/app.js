@@ -3,13 +3,12 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
-const routes = require('./routes');
+const routes = require('./routes'); // Mampiditra ny routes rehetra
 const { notFound, errorHandler } = require('./middlewares/error.middleware');
 
 const app = express();
 
-// Origines autorisées : localhost + CORS_ORIGIN (liste séparée par des virgules)
-// + tous les sous-domaines *.vercel.app
+// Origines autorisées : localhost + CORS_ORIGIN
 const extraOrigins = (process.env.CORS_ORIGIN || '')
   .split(',')
   .map((o) => o.trim().replace(/\/$/, ''))
@@ -19,7 +18,6 @@ const allowedOrigins = ['http://localhost:5173', ...extraOrigins];
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Pas d'origine (Postman, curl, requêtes serveur) : on autorise
     if (!origin) return callback(null, true);
 
     const ok =
@@ -33,7 +31,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // requêtes preflight
+app.options('*', cors(corsOptions));
 
 app.use(express.json());
 
@@ -42,7 +40,9 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', date: new Date().toISOString() });
 });
 
+// Ampidirina eto ny routes rehetra (mandeha ho an'ny /api sy ny / mivantana):
 app.use('/api', routes);
+app.use('/', routes);
 
 // Toujours en dernier
 app.use(notFound);
